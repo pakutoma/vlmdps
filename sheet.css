@@ -1,0 +1,27 @@
+.sheet {
+    text-align: center;
+}
+
+.sheet small { font-size: 85%; }
+.sheet strong { font-weight: bold; }
+.sheet em { font-style: italic; }
+
+.sheet h1,
+.sheet h2,
+.sheet h3,
+.sheet h4,
+.sheet h5,
+.sheet h6 {
+    font-weight: bold;
+    text-rendering: optimizelegibility;
+}
+
+.sheet h1 { font-size: 150%; }
+.sheet h2 { font-size: 130%; }
+.sheet h3 { font-size: 120%; }
+.sheet h4 { font-size: 110%; }
+.sheet h5 { font-size: 100%; }
+.sheet h6 { font-size: 100%; }
+
+.sheet ul,ol {
+}

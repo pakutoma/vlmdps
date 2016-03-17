@@ -1,0 +1,82 @@
+.slider {
+    background-color:#eee;
+    height: 100%;
+    width: 20%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow-y: scroll;
+}
+
+.navigate {
+    width: 100%;
+}
+
+.view {
+    background-color:#eee;
+    height: 100%;
+    width: 80%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.sheetwrap:before {
+    content:"";
+    display: block;
+    padding-top: 56.25%;
+}
+
+.sliderchild {
+    width: 85%;
+    margin-bottom: 4%;
+    position: relative;
+    font-size: 0.5vw;
+}
+
+.viewchild {
+    width: 90%;
+    position: relative;
+    font-size: 2.32vw;
+}
+
+.sheet {
+    background-image: url("./background.png");
+    background-size: cover;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    border-color: #ccc;
+    border-width: 1px;
+    border-style: solid;
+    padding: 2em 1em 2em 1em;
+}
+
+.flexbox {
+    display: flex;
+    height: 100%;
+    width: 100%;
+}
+
+.top {
+    margin-bottom:4%;
+}
+
+.selected .sheet{
+    border-width: 3px;
+    border-color: #aaa;
+}
+
+html {
+    height: 100%;
+    width: 100%;
+}
+
+body {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+}
