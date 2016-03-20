@@ -1,12 +1,12 @@
+"use strict";
+
 const remote = require('remote');
 const loadmd = remote.require('./lib/loadmd');
 const ipcRenderer = require('electron').ipcRenderer;
 
 function awaitDOMContentLoaded() {
-    return new Promise(function(resolve) {
-        window.addEventListener("DOMContentLoaded",function(e) {
-            resolve();
-        });
+    return new Promise(resolve => {
+        window.addEventListener("DOMContentLoaded",e => resolve());
     });
 }
 
@@ -25,9 +25,7 @@ function copyToView(filename) {
     copyby.classList.add('selected');
 }
 
-ipcRenderer.on('post-slide-data-reply',function(event,arg) {
-    console.log(arg);
-});
+ipcRenderer.on('post-slide-data-reply',(event,arg) => console.log(arg));
 
 function moveselectd(e) {
     const key = e.keyCode;
@@ -58,15 +56,15 @@ const match = location.hash.match(/baseDir=([^&]*)/);
 const dirpath = match ? decodeURIComponent(match[1]) : '.';
 
 awaitDOMContentLoaded()
-    .then(function(){return loadmd(dirpath)})
-    .then(function(result) {
+    .then(() => loadmd(dirpath))
+    .then(result => {
         const slider = document.querySelector('.slider');
         for(const [html,name] of result) {
             const sheet = document.createElement('div');
             sheet.classList.add('sheet');
             sheet.insertAdjacentHTML('beforeend',html);
             const sheetwrap = document.createElement('div');
-            sheetwrap.addEventListener('click',function(){copyToView(name)});
+            sheetwrap.addEventListener('click',() => copyToView(name));
             sheetwrap.classList.add('sheetwrap');
             sheetwrap.classList.add('sliderchild');
             sheetwrap.classList.add('sheet_' + name);

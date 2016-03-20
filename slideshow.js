@@ -1,11 +1,12 @@
+"use strict";
+
 const ipcRenderer = require('electron').ipcRenderer;
 const remote = require('electron').remote;
 const Menu = remote.Menu;
 
-window.addEventListener("DOMContentLoaded",function(e) {
-    ipcRenderer.send('get-slide-data');
-});
-ipcRenderer.on('get-slide-data-reply',function(event,arg) {
+window.addEventListener("DOMContentLoaded",e => ipcRenderer.send('get-slide-data'));
+
+ipcRenderer.on('get-slide-data-reply',(event,arg) => {
     const sheetwrap = document.querySelector('.sheetwrap');
     while (sheetwrap.firstChild) {
         sheetwrap.removeChild(sheetwrap.firstChild);
@@ -15,9 +16,9 @@ ipcRenderer.on('get-slide-data-reply',function(event,arg) {
 });
 const contextmenu = Menu.buildFromTemplate([{
     label: 'スライドショーを閉じる',
-    click: ()=>ipcRenderer.send('close-slideshow')
+    click: () => ipcRenderer.send('close-slideshow')
 }])
-window.addEventListener('contextmenu',e=>{
+window.addEventListener('contextmenu',e => {
         e.preventDefault();
         contextmenu.popup(remote.getCurrentWindow());
 });
