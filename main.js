@@ -5,9 +5,20 @@ const BrowserWindow = require("browser-window");
 const Menu = require('menu');
 const electron = require('electron');
 const ipcMain = electron.ipcMain;
+const EventEmitter = require('events').EventEmitter;
+const mdevent = new EventEmitter();
+const loadmd = require('./lib/loadmd');
 
 let mainWindow = null;
-let slidedata = "";
+
+
+ipcMain.on('get-slide-data-index',(getevent,getarg) => {
+    mdevent.once('diropen',dir => {
+        loadmd(dir)
+            .then(result => getevent.sender.send('get-slide-data-index-reply',result));
+    });
+});
+
 
 function openSlideshowWindow(display) {
     let slideshowWindow = new BrowserWindow({x: display.bounds.x,y: display.bounds.y,fullscreen: true,autoHideMenuBar: true});
@@ -18,9 +29,8 @@ function openSlideshowWindow(display) {
         ipcMain.removeAllListeners('post-slide-data');
     });
     ipcMain.on('get-slide-data', (getevent,getarg) => {
-        ipcMain.once('post-slide-data', function(postevent,postarg) {
+        ipcMain.once('post-slide-data', (postevent,postarg) => {
             getevent.sender.send('get-slide-data-reply',postarg);
-            postevent.sender.send('post-slide-data-reply',true);
         });
     });
     ipcMain.once('close-slideshow', e => slideshowWindow.close());
@@ -31,6 +41,7 @@ app.on("window-all-closed", () => {
         app.quit();
     }
 });
+
 const menu = Menu.buildFromTemplate([{
         label: 'ファイル',
         submenu: [{
@@ -43,7 +54,8 @@ const menu = Menu.buildFromTemplate([{
                     },
                     baseDir => {
                         if (baseDir && baseDir[0]) {
-                            mainWindow.loadURL("file://" + __dirname + "/index.html#baseDir=" + encodeURIComponent(baseDir));
+                            const dir = baseDir[0];
+                            process.nextTick(() => mdevent.emit('diropen',dir));
                         }
                     }  
                 );     
@@ -91,7 +103,6 @@ const menu = Menu.buildFromTemplate([{
 ]);                        
 
 app.on("ready", () => {
-
     mainWindow = new BrowserWindow({});
     mainWindow.setMenu(menu);
     mainWindow.loadURL("file://" + __dirname + "/index.html");

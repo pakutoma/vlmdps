@@ -1,14 +1,38 @@
 "use strict";
 
-const remote = require('remote');
-const loadmd = remote.require('./lib/loadmd');
 const ipcRenderer = require('electron').ipcRenderer;
 
-function awaitDOMContentLoaded() {
-    return new Promise(resolve => {
-        window.addEventListener("DOMContentLoaded",e => resolve());
-    });
-}
+window.addEventListener('DOMContentLoaded',e => ipcRenderer.send('get-slide-data-index'));
+window.addEventListener('keydown',moveselectd);
+
+ipcRenderer.on('get-slide-data-index-reply',(event,arg) => {
+    ipcRenderer.send('get-slide-data-index');
+    console.log(arg);
+    const slider = document.querySelector('.slider');
+    for(const [html,name] of arg) {
+        const sheet = document.createElement('div');
+        sheet.classList.add('sheet');
+        sheet.insertAdjacentHTML('beforeend',html);
+        const sheetwrap = document.createElement('div');
+        sheetwrap.addEventListener('click',() => copyToView(name));
+        sheetwrap.classList.add('sheetwrap');
+        sheetwrap.classList.add('sliderchild');
+        sheetwrap.classList.add('sheet_' + name);
+        sheetwrap.appendChild(sheet);
+        slider.appendChild(sheetwrap);
+    }
+    if (arg.length > 0) {
+        const view = document.querySelector('.view');
+        const sheet = document.createElement('div');
+        sheet.classList.add('sheet');
+        const sheetwrap = document.createElement('div');
+        sheetwrap.classList.add('sheetwrap');
+        sheetwrap.classList.add('viewchild');
+        sheetwrap.appendChild(sheet);
+        view.appendChild(sheetwrap);
+        copyToView(arg[0][1]);
+    }
+});
 
 function copyToView(filename) {
     const selected = document.querySelector('.selected');
@@ -24,8 +48,6 @@ function copyToView(filename) {
     ipcRenderer.send('post-slide-data',copyby.innerHTML);
     copyby.classList.add('selected');
 }
-
-ipcRenderer.on('post-slide-data-reply',(event,arg) => console.log(arg));
 
 function moveselectd(e) {
     const key = e.keyCode;
@@ -51,36 +73,3 @@ function moveselectd(e) {
         copyToView(prev.className.match(/sheet_(\S+)/)[1]);
     }
 }
-
-const match = location.hash.match(/baseDir=([^&]*)/);
-const dirpath = match ? decodeURIComponent(match[1]) : '.';
-
-awaitDOMContentLoaded()
-    .then(() => loadmd(dirpath))
-    .then(result => {
-        const slider = document.querySelector('.slider');
-        for(const [html,name] of result) {
-            const sheet = document.createElement('div');
-            sheet.classList.add('sheet');
-            sheet.insertAdjacentHTML('beforeend',html);
-            const sheetwrap = document.createElement('div');
-            sheetwrap.addEventListener('click',() => copyToView(name));
-            sheetwrap.classList.add('sheetwrap');
-            sheetwrap.classList.add('sliderchild');
-            sheetwrap.classList.add('sheet_' + name);
-            sheetwrap.appendChild(sheet);
-            slider.appendChild(sheetwrap);
-        }
-        if (result.length > 0) {
-            const view = document.querySelector('.view');
-            const sheet = document.createElement('div');
-            sheet.classList.add('sheet');
-            const sheetwrap = document.createElement('div');
-            sheetwrap.classList.add('sheetwrap');
-            sheetwrap.classList.add('viewchild');
-            sheetwrap.appendChild(sheet);
-            view.appendChild(sheetwrap);
-            copyToView(result[0][1]);
-        }
-        addEventListener('keydown',moveselectd);
-    });
