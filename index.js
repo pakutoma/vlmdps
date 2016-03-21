@@ -1,13 +1,20 @@
 "use strict";
 
 const ipcRenderer = require('electron').ipcRenderer;
+const remote = require('remote');
+const chokidar = remote.require('chokidar');
+const loadmd = remote.require('./lib/loadmd');
 
-window.addEventListener('DOMContentLoaded',e => ipcRenderer.send('get-slide-data-index'));
+window.addEventListener('DOMContentLoaded',e => ipcRenderer.send('get-slides-dir'));
 window.addEventListener('keydown',moveselectd);
 
-ipcRenderer.on('get-slide-data-index-reply',(event,arg) => {
-    ipcRenderer.send('get-slide-data-index');
-    console.log(arg);
+ipcRenderer.on('get-slides-dir-reply',(event,path) => {
+    ipcRenderer.send('get-slides-dir');
+    console.log(path);
+    loadmd(path).then(result => initSlideWindow(result));
+});
+
+function initSlideWindow(slides) {
     const slider = document.querySelector('.slider');
     while (slider.firstChild) {
         slider.removeChild(slider.firstChild);
@@ -15,7 +22,7 @@ ipcRenderer.on('get-slide-data-index-reply',(event,arg) => {
     const topelement = document.createElement('div');
     topelement.classList.add('top');
     slider.appendChild(topelement);
-    for(const [html,name] of arg) {
+    for(const [html,name] of slides) {
         const sheet = document.createElement('div');
         sheet.classList.add('sheet');
         sheet.insertAdjacentHTML('beforeend',html);
@@ -27,7 +34,7 @@ ipcRenderer.on('get-slide-data-index-reply',(event,arg) => {
         sheetwrap.appendChild(sheet);
         slider.appendChild(sheetwrap);
     }
-    if (arg.length > 0) {
+    if (slides.length > 0) {
         const view = document.querySelector('.view');
         while (view.firstChild) {
             view.removeChild(view.firstChild);
@@ -39,9 +46,9 @@ ipcRenderer.on('get-slide-data-index-reply',(event,arg) => {
         sheetwrap.classList.add('viewchild');
         sheetwrap.appendChild(sheet);
         view.appendChild(sheetwrap);
-        copyToView(arg[0][1]);
+        copyToView(slides[0][1]);
     }
-});
+}
 
 function copyToView(filename) {
     const selected = document.querySelector('.selected');
