@@ -7,18 +7,26 @@ const electron = require('electron');
 const ipcMain = electron.ipcMain;
 const EventEmitter = require('events').EventEmitter;
 const mdevent = new EventEmitter();
+const chokidar = require('chokidar');
 const loadmd = require('./lib/loadmd');
 
 let mainWindow = null;
-
+let watcher = null;
 
 ipcMain.on('get-slide-data-index',(getevent,getarg) => {
     mdevent.once('diropen',dir => {
         loadmd(dir)
             .then(result => getevent.sender.send('get-slide-data-index-reply',result));
+        watcher = chokidar.watch(dir,{
+            ignored: /[\/\\]\./,
+            persistent: true
+        });
+        watcher
+            .on('add', path => console.log(path))
+            .on('change', path => console.log(path))
+            .on('unlink', path => console.log(path));
     });
 });
-
 
 function openSlideshowWindow(display) {
     let slideshowWindow = new BrowserWindow({x: display.bounds.x,y: display.bounds.y,fullscreen: true,autoHideMenuBar: true});

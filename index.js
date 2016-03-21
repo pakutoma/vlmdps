@@ -9,6 +9,12 @@ ipcRenderer.on('get-slide-data-index-reply',(event,arg) => {
     ipcRenderer.send('get-slide-data-index');
     console.log(arg);
     const slider = document.querySelector('.slider');
+    while (slider.firstChild) {
+        slider.removeChild(slider.firstChild);
+    }
+    const topelement = document.createElement('div');
+    topelement.classList.add('top');
+    slider.appendChild(topelement);
     for(const [html,name] of arg) {
         const sheet = document.createElement('div');
         sheet.classList.add('sheet');
@@ -23,6 +29,9 @@ ipcRenderer.on('get-slide-data-index-reply',(event,arg) => {
     }
     if (arg.length > 0) {
         const view = document.querySelector('.view');
+        while (view.firstChild) {
+            view.removeChild(view.firstChild);
+        }
         const sheet = document.createElement('div');
         sheet.classList.add('sheet');
         const sheetwrap = document.createElement('div');
